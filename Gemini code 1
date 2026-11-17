@@ -1,0 +1,89 @@
+export async function onRequestPost(context) {
+  const { request, env } = context;
+
+  // 1. Validasi Origin (Hanya izinkan request dari domain resmi J.MUSE)
+  const origin = request.headers.get("Origin") || "";
+  const allowedOrigins = [
+    "https://jovan.ai.id",
+    "https://www.jovan.ai.id",
+    "https://jovan-ai.pages.dev"
+  ];
+
+  if (!allowedOrigins.includes(origin)) {
+    return new Response(JSON.stringify({ error: "Akses ditolak: Origin tidak sah." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+
+  try {
+    // 2. Batasi ukuran payload maksimal 5KB untuk mencegah spam memori
+    const rawBody = await request.text();
+    if (rawBody.length > 5120) {
+      return new Response(JSON.stringify({ error: "Payload terlalu besar." }), {
+        status: 413,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    const data = JSON.parse(rawBody);
+
+    // 3. Perangkap Honeypot: Jika kolom jebakan diisi bot, balas sukses palsu
+    if (data.fax_number && data.fax_number.trim() !== "") {
+      return new Response(JSON.stringify({ status: "success", message: "Pesan diterima." }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // 4. Validasi & Sanitasi Input Wajib (Whitelist field)
+    const cleanPayload = {
+      nama: String(data.nama || "").trim().slice(0, 100),
+      whatsapp: String(data.whatsapp || "").trim().slice(0, 25),
+      pesan: String(data.pesan || "").trim().slice(0, 1000),
+      sumber: "jovan.ai.id-v3",
+      timestamp: new Date().toISOString()
+    };
+
+    if (!cleanPayload.nama || !cleanPayload.whatsapp) {
+      return new Response(JSON.stringify({ error: "Nama dan nomor WhatsApp wajib diisi." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // 5. Pastikan Environment Variables sudah terpasang di Cloudflare Dashboard
+    if (!env.N8N_WEBHOOK_URL || !env.N8N_WEBHOOK_SECRET) {
+      return new Response(JSON.stringify({ error: "Konfigurasi server belum lengkap." }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // 6. Teruskan data bersih ke n8n dengan Header Rahasia
+    const n8nResponse = await fetch(env.N8N_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Jmuse-Auth": env.N8N_WEBHOOK_SECRET
+      },
+      body: JSON.stringify(cleanPayload)
+    });
+
+    if (!n8nResponse.ok) {
+      throw new Error("Upstream n8n gagal merespons");
+    }
+
+    return new Response(JSON.stringify({ status: "success", message: "Data berhasil diteruskan." }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+
+  } catch (err) {
+    // Jangan pernah membocorkan detail error internal ke browser pengunjung
+    return new Response(JSON.stringify({ error: "Terjadi gangguan pemrosesan permintaan." }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
