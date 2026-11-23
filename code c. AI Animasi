@@ -1,0 +1,57 @@
+{
+  "ip_title": "NEON DISTRICT",
+  "code": "CODE C",
+  "architect": "AI Agent Gemini (C. Jovan)",
+  "visual_engine": "GPT Image",
+  "characters": [
+    {
+      "id": "char_01_sean",
+      "name": "Sean",
+      "role_tier": "Main Character / Protagonist",
+      "species": "Human",
+      "age": 17,
+      "traits": ["Determined", "Reckless", "Empathetic"],
+      "signature": ["Black Techwear Jacket with White and Blue Accents", "Hope in the Rain"],
+      "visual_sheet_status": "locked_concept_ready_for_prompt"
+    },
+    {
+      "id": "char_02_katzja",
+      "name": "Katzja",
+      "alias": "The Kind Hacker",
+      "role_tier": "Main Partner / Mascot Hero",
+      "species": "Cat Humanoid",
+      "height_cm": 170,
+      "traits": ["Kind", "Loyal", "Tech-Savvy"],
+      "catchphrase": "Don't worry. I'm here.",
+      "visual_sheet_status": "locked"
+    },
+    {
+      "id": "char_03_mira",
+      "name": "Mira",
+      "role_tier": "Main Female Lead",
+      "age": 17,
+      "affiliation": "Virelle High, Class 2-B",
+      "occupation": "Quiet Observer / Street Info Courier",
+      "traits": ["Reserved", "Loyal", "Sharp Intuition", "Endures Alone"],
+      "signature": ["Dark School Uniform", "Black Canvas Bag", "Always in the Rain"],
+      "visual_sheet_status": "locked_override_header_to_main_lead"
+    },
+    {
+      "id": "char_04_arven",
+      "name": "Arven Kairo",
+      "role_tier": "Main Antagonist / Rival to Sean",
+      "species": "Human",
+      "age": 17,
+      "traits": ["Calculating", "Ambitious", "Charismatic"],
+      "signature": ["Black Techwear Jacket with Red Accents", "Ambition and Danger"],
+      "visual_sheet_status": "locked_concept_ready_for_prompt"
+    },
+    {
+      "id": "char_05_j",
+      "name": "J",
+      "role_tier": "Mysterious Entity",
+      "info_status": "REDACTED_NO_INFORMATION_YET",
+      "visual_sheet_status": "classified"
+    }
+  ]
+}
